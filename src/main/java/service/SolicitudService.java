@@ -17,75 +17,70 @@ import java.util.List;
 @Service
 public class SolicitudService {
 
-    private final SolicitudRepository solicitudRepo;
-    private final SolicitanteRepository solicitanteRepo;
-    private final ConvocatoriaRepository convocatoriaRepo;
+	private final SolicitudRepository solicitudRepo;
+	private final SolicitanteRepository solicitanteRepo;
+	private final ConvocatoriaRepository convocatoriaRepo;
 
-    public SolicitudService(SolicitudRepository solicitudRepo,
-                            SolicitanteRepository solicitanteRepo,
-                            ConvocatoriaRepository convocatoriaRepo) {
-        this.solicitudRepo = solicitudRepo;
-        this.solicitanteRepo = solicitanteRepo;
-        this.convocatoriaRepo = convocatoriaRepo;
-    }
+	public SolicitudService(SolicitudRepository solicitudRepo, SolicitanteRepository solicitanteRepo,
+			ConvocatoriaRepository convocatoriaRepo) {
+		this.solicitudRepo = solicitudRepo;
+		this.solicitanteRepo = solicitanteRepo;
+		this.convocatoriaRepo = convocatoriaRepo;
+	}
 
-    public List<Solicitud> listarTodos() {
-        List<Solicitud> list = solicitudRepo.findAll();
-        if (list.isEmpty()) throw new NotFoundException("No existen solicitudes.");
-        return list;
-    }
+	public List<Solicitud> listarTodos() {
+		List<Solicitud> list = solicitudRepo.findAll();
+		if (list.isEmpty())
+			throw new NotFoundException("No existen solicitudes.");
+		return list;
+	}
 
-    /**
-     * Crea una solicitud validando:
-     *  - Que existan el solicitante y la convocatoria
-     *  - Que no exista ya una solicitud con el mismo (solicitante, convocatoria)
-     *  - Que la fecha tenga formato ISO (yyyy-MM-dd)
-     */
-    public Solicitud crear(Integer solicitanteId,
-                           Integer convocatoriaId,
-                           String fechaSolicitud,
-                           Boolean adjudicada) {
+	/**
+	 * Crea una solicitud validando: - Que existan el solicitante y la convocatoria
+	 * - Que no exista ya una solicitud con el mismo (solicitante, convocatoria) -
+	 * Que la fecha tenga formato ISO (yyyy-MM-dd)
+	 */
+	public Solicitud crear(Integer solicitanteId, Integer convocatoriaId, String fechaSolicitud, Boolean adjudicada) {
 
-        if (solicitanteId == null) throw new IllegalArgumentException("solicitanteId es obligatorio.");
-        if (convocatoriaId == null) throw new IllegalArgumentException("convocatoriaId es obligatorio.");
-        if (fechaSolicitud == null || fechaSolicitud.isBlank())
-            throw new IllegalArgumentException("fechaSolicitud es obligatoria (formato yyyy-MM-dd).");
+		if (solicitanteId == null)
+			throw new IllegalArgumentException("solicitanteId es obligatorio.");
+		if (convocatoriaId == null)
+			throw new IllegalArgumentException("convocatoriaId es obligatorio.");
+		if (fechaSolicitud == null || fechaSolicitud.isBlank())
+			throw new IllegalArgumentException("fechaSolicitud es obligatoria (formato yyyy-MM-dd).");
 
-        // Parseo de fecha (si falla, saltará IllegalArgumentException -> 400 por nuestro Handler)
-        LocalDate fecha = LocalDate.parse(fechaSolicitud);
+		// Parseo de fecha (si falla, saltará IllegalArgumentException -> 400 por
+		// nuestro Handler)
+		LocalDate fecha = LocalDate.parse(fechaSolicitud);
 
-        // Cargar entidades (si no existen -> 404 NotFound)
-        Solicitante solicitante = solicitanteRepo.findById(solicitanteId)
-                .orElseThrow(() -> new NotFoundException("No existe el solicitante con id " + solicitanteId));
+		// Cargar entidades (si no existen -> 404 NotFound)
+		Solicitante solicitante = solicitanteRepo.findById(solicitanteId)
+				.orElseThrow(() -> new NotFoundException("No existe el solicitante con id " + solicitanteId));
 
-        Convocatoria convocatoria = convocatoriaRepo.findById(convocatoriaId)
-                .orElseThrow(() -> new NotFoundException("No existe la convocatoria con id " + convocatoriaId));
+		Convocatoria convocatoria = convocatoriaRepo.findById(convocatoriaId)
+				.orElseThrow(() -> new NotFoundException("No existe la convocatoria con id " + convocatoriaId));
 
-        // Regla de unicidad por (solicitante, convocatoria)
-        boolean yaExiste = solicitudRepo
-                .existsBySolicitante_IdAndConvocatoria_Id(solicitanteId, convocatoriaId);
-        if (yaExiste) {
-            throw new AlreadyExistsException(
-                    "Ya existe una solicitud para el solicitante " + solicitanteId +
-                            " en la convocatoria " + convocatoriaId
-            );
-        }
+		// Regla de unicidad por (solicitante, convocatoria)
+		boolean yaExiste = solicitudRepo.existsBySolicitante_IdAndConvocatoria_Id(solicitanteId, convocatoriaId);
+		if (yaExiste) {
+			throw new AlreadyExistsException("Ya existe una solicitud para el solicitante " + solicitanteId
+					+ " en la convocatoria " + convocatoriaId);
+		}
 
-        // Crear y guardar
-        Solicitud s = new Solicitud();
-        s.setFechaSolicitud(fecha);
-        s.setAdjudicada(adjudicada != null ? adjudicada : Boolean.FALSE);
-        s.setSolicitante(solicitante);
-        s.setConvocatoria(convocatoria);
-        return solicitudRepo.save(s);
-    }
+		// Crear y guardar
+		Solicitud s = new Solicitud();
+		s.setFechaSolicitud(fecha);
+		s.setAdjudicada(adjudicada != null ? adjudicada : Boolean.FALSE);
+		s.setSolicitante(solicitante);
+		s.setConvocatoria(convocatoria);
+		return solicitudRepo.save(s);
+	}
 
-    public int borrarTodos() {
-        int count = (int) solicitudRepo.count();
-        solicitudRepo.deleteAll();
-        return count;
-    }
+	public int borrarTodos() {
+		int count = (int) solicitudRepo.count();
+		solicitudRepo.deleteAll();
+		return count;
+	}
+
+	
 }
-
-
-

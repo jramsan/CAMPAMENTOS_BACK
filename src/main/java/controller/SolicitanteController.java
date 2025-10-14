@@ -2,6 +2,7 @@
 package controller;
 
 import entity.Solicitante;
+import entity.Solicitud;
 import service.SolicitanteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,6 +48,7 @@ public class SolicitanteController {
                 "count", borrados
         ));
     }
+    
 }
 
 
