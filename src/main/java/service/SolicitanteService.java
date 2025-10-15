@@ -1,3 +1,4 @@
+// SolicitanteService.java
 package service;
 
 import entity.Solicitante;
@@ -7,7 +8,6 @@ import repository.SolicitanteRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class SolicitanteService {
@@ -37,15 +37,6 @@ public class SolicitanteService {
             throw new AlreadyExistsException("Ya existe un solicitante con DNI " + s.getDni());
         }
         return repo.save(s);
-    }
-
-    // ✅ NUEVO MÉTODO para devolver nombre completo
-    public List<String> obtenerNombresCompletos() {
-        List<Solicitante> solicitantes = repo.findAll();
-
-        return solicitantes.stream()
-                .map(s -> s.getNombre() + " " + s.getApellido1())
-                .collect(Collectors.toList());
     }
 
     public int borrarTodos() {
