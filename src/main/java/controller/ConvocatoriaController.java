@@ -4,6 +4,7 @@ package controller;
 import entity.Convocatoria;
 import entity.Solicitud;
 import service.ConvocatoriaService;
+import exception.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,10 +43,18 @@ public class ConvocatoriaController {
                 "count", borrados
         ));
     }
-    
-    @GetMapping("/activas")
-    public ResponseEntity<List<Convocatoria>> getSolicitudesActivas() {
-        List<Convocatoria> activas = service.obtenerSolicitudesActivasHoy();
-        return ResponseEntity.ok(activas);
+
+    // ✅ NUEVO: obtener convocatorias con más de X solicitudes
+    @GetMapping("/mas-de")
+    public ResponseEntity<?> getConMasDeSolicitudes(@RequestParam long minSolicitudes) {
+        try {
+            List<Convocatoria> resultado = service.obtenerConMasDeSolicitudes(minSolicitudes);
+            return ResponseEntity.ok(resultado);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "message", e.getMessage(),
+                    "minSolicitudes", minSolicitudes
+            ));
+        }
     }
 }
