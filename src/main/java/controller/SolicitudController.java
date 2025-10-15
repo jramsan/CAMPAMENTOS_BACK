@@ -91,6 +91,8 @@ public class SolicitudController {
         if (s.isEmpty()) throw new IllegalArgumentException(field + " es obligatorio.");
         return s;
     }
+    
+
 }
 
 
