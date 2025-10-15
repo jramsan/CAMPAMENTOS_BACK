@@ -5,6 +5,8 @@ import service.SolicitudService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import DTO.GetSolicitudesByDuracionDTO;
+
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +51,18 @@ public class SolicitudController {
                 .created(URI.create("/api/solicitudes/" + creada.getId()))
                 .body(creada);
     }
+
+
+    @GetMapping("/duracion")
+    public List<GetSolicitudesByDuracionDTO> getSolcitudesByDuracion() {
+    	return service.getSolcitudesByDuracion();
+    	
+        
+    }
+
+
+
+
 
     @DeleteMapping
     public ResponseEntity<Map<String, Object>> borrarTodos() {

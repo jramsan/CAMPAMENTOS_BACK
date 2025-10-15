@@ -11,7 +11,11 @@ import repository.SolicitanteRepository;
 import repository.ConvocatoriaRepository;
 import org.springframework.stereotype.Service;
 
+import DTO.GetSolicitudesByDuracionDTO;
+
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -34,6 +38,37 @@ public class SolicitudService {
         if (list.isEmpty()) throw new NotFoundException("No existen solicitudes.");
         return list;
     }
+    
+    public List<GetSolicitudesByDuracionDTO> getSolcitudesByDuracion(){
+    	
+    	List<GetSolicitudesByDuracionDTO> listGetSolByDuracion = new ArrayList<>();
+    	GetSolicitudesByDuracionDTO getSolByDuracion;
+    	List<Solicitud> solicitudes = solicitudRepo.findAll();
+    	
+    	for(Solicitud  s : solicitudes) {
+    		getSolByDuracion = new GetSolicitudesByDuracionDTO();
+    		
+    		getSolByDuracion.idSolicitud = s.getId();
+    		getSolByDuracion.fechaSolicitud = s.getFechaSolicitud();
+    		
+    		Solicitante solicitante = new Solicitante(); 
+    		solicitante = solicitanteRepo.findById(s.getSolicitante().getId()).get();
+    		
+    		getSolByDuracion.nombreUsuario = solicitante.getNombre()     + " " + 
+    		                                 solicitante.getApellido1()  + " " +
+    		                                 solicitante.getApellido2();
+    		
+    		Convocatoria convocatoria = new Convocatoria();
+    		convocatoria = convocatoriaRepo.findById(s.getConvocatoria().getId()).get();
+    		getSolByDuracion.duracionEnDias = (int) ChronoUnit.DAYS.between(convocatoria.getFechaInicio(), convocatoria.getFechaFin());
+     		
+    		listGetSolByDuracion.add(getSolByDuracion); 		
+    		
+    	}
+    	return listGetSolByDuracion;
+    	
+    }
+    
 
     /**
      * Crea una solicitud validando:
