@@ -2,11 +2,13 @@
 package service;
 
 import entity.Convocatoria;
+import entity.Solicitud;
 import exception.AlreadyExistsException;
 import exception.NotFoundException;
 import repository.ConvocatoriaRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -41,4 +43,10 @@ public class ConvocatoriaService {
         repo.deleteAll();
         return count;
     }
+    
+
+	public List<Convocatoria> obtenerSolicitudesActivasHoy() {
+		LocalDate hoy = LocalDate.now();
+		return repo.findByFechaInicioLessThanEqualAndFechaFinGreaterThanEqual(hoy, hoy);
+	}
 }

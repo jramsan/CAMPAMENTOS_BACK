@@ -2,6 +2,7 @@
 package controller;
 
 import entity.Convocatoria;
+import entity.Solicitud;
 import service.ConvocatoriaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,5 +41,11 @@ public class ConvocatoriaController {
                 "message", "Convocatorias borradas",
                 "count", borrados
         ));
+    }
+    
+    @GetMapping("/activas")
+    public ResponseEntity<List<Convocatoria>> getSolicitudesActivas() {
+        List<Convocatoria> activas = service.obtenerSolicitudesActivasHoy();
+        return ResponseEntity.ok(activas);
     }
 }
