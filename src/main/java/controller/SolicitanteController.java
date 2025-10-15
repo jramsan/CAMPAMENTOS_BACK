@@ -1,30 +1,31 @@
-// SolicitanteController.java
 package controller;
 
 import entity.Solicitante;
 import entity.Solicitud;
 import service.SolicitanteService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import service.SolicitanteService;
 
-import java.net.URI;
 import java.util.List;
-import java.util.Map;
 
 @RestController
-@RequestMapping("/api/solicitantes")
+@RequestMapping("/solicitantes")
 public class SolicitanteController {
 
-    private final SolicitanteService service;
+    private final SolicitanteService solicitanteService;
 
-    public SolicitanteController(SolicitanteService service) {
-        this.service = service;
+    @Autowired
+    public SolicitanteController(SolicitanteService solicitanteService) {
+        this.solicitanteService = solicitanteService;
     }
 
-    // 🔍 Nuevo: buscar por apellido1
-    @GetMapping(params = "apellido1")
-    public List<Solicitante> getByApellido1(@RequestParam String apellido1) {
-        return service.buscarPorApellido1(apellido1);
+    // ✅ NUEVO ENDPOINT: GET /solicitantes/nombres-completos
+    @GetMapping("/nombres-completos")
+    public ResponseEntity<List<String>> obtenerNombresCompletos() {
+        List<String> nombres = solicitanteService.obtenerNombresCompletos();
+        return ResponseEntity.ok(nombres);
     }
 
     @GetMapping
@@ -50,5 +51,3 @@ public class SolicitanteController {
     }
     
 }
-
-
