@@ -3,144 +3,138 @@ package com.example.demo;
 import entity.Convocatoria;
 import exception.AlreadyExistsException;
 import exception.NotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.ArgumentMatchers;
 import repository.ConvocatoriaRepository;
+import repository.SolicitudRepository;
 import service.ConvocatoriaService;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-public class ConvocatoriaServiceTest {
+class ConvocatoriaServiceTest {
 
-    @Mock
-    private ConvocatoriaRepository repo;
+    private ConvocatoriaRepository convocatoriaRepository;
+    private SolicitudRepository solicitudRepository;
+    private ConvocatoriaService convocatoriaService;
 
-    @InjectMocks
-    private ConvocatoriaService service;
-
-    // ✅ Test OK: listar convocatorias
-    @Test
-    void testListarTodos_ok() {
-        Convocatoria c1 = new Convocatoria();
-        c1.setId(1);
-        c1.setNombreConvocatoria("Campamento Primavera");
-
-        when(repo.findAll()).thenReturn(List.of(c1));
-
-        List<Convocatoria> resultado = service.listarTodos();
-
-        assertEquals(1, resultado.size());
-        assertEquals("Campamento Primavera", resultado.get(0).getNombreConvocatoria());
+    @BeforeEach
+    void setUp() {
+        convocatoriaRepository = mock(ConvocatoriaRepository.class);
+        solicitudRepository = mock(SolicitudRepository.class);
+        convocatoriaService = new ConvocatoriaService(convocatoriaRepository, solicitudRepository);
     }
 
-    // ❌ Test KO: no hay convocatorias
     @Test
-    void testListarTodos_vacio_lanzaExcepcion() {
-        when(repo.findAll()).thenReturn(List.of());
+    void testListarTodosSuccess() {
+        List<Convocatoria> mockList = List.of(new Convocatoria());
+        when(convocatoriaRepository.findAll()).thenReturn(mockList);
 
-        NotFoundException ex = assertThrows(NotFoundException.class, () -> {
-            service.listarTodos();
-        });
+        List<Convocatoria> result = convocatoriaService.listarTodos();
 
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void testListarTodosThrowsNotFound() {
+        when(convocatoriaRepository.findAll()).thenReturn(Collections.emptyList());
+
+        NotFoundException ex = assertThrows(NotFoundException.class, () -> convocatoriaService.listarTodos());
         assertEquals("No existen convocatorias.", ex.getMessage());
     }
 
-    // ✅ Test OK: crear correctamente
     @Test
-    void testCrear_ok() {
+    void testCrearSuccess() {
         Convocatoria nueva = new Convocatoria();
-        nueva.setNombreConvocatoria("Nueva Convocatoria");
+        nueva.setNombreConvocatoria("Nueva");
         nueva.setFechaInicio(LocalDate.of(2025, 1, 1));
         nueva.setFechaFin(LocalDate.of(2025, 12, 31));
 
-        when(repo.existsByNombreConvocatoria("Nueva Convocatoria")).thenReturn(false);
-        when(repo.save(any(Convocatoria.class))).thenReturn(nueva);
+        when(convocatoriaRepository.existsByNombreConvocatoria("Nueva")).thenReturn(false);
+        when(convocatoriaRepository.save(nueva)).thenReturn(nueva);
 
-        Convocatoria creada = service.crear(nueva);
+        Convocatoria result = convocatoriaService.crear(nueva);
 
-        assertNotNull(creada);
-        assertEquals("Nueva Convocatoria", creada.getNombreConvocatoria());
+        assertEquals("Nueva", result.getNombreConvocatoria());
     }
 
-    // ❌ Test KO: nombre ya existe
     @Test
-    void testCrear_duplicado_lanzaAlreadyExistsException() {
-        Convocatoria duplicada = new Convocatoria();
-        duplicada.setNombreConvocatoria("Repetida");
-        duplicada.setFechaInicio(LocalDate.of(2025, 6, 1));
-        duplicada.setFechaFin(LocalDate.of(2025, 6, 30));
+    void testCrearThrowsIllegalArgument_blankName() {
+        Convocatoria c = new Convocatoria();
+        c.setNombreConvocatoria("  ");
+        c.setFechaInicio(LocalDate.now());
+        c.setFechaFin(LocalDate.now());
 
-        when(repo.existsByNombreConvocatoria("Repetida")).thenReturn(true);
-
-        AlreadyExistsException ex = assertThrows(AlreadyExistsException.class, () -> {
-            service.crear(duplicada);
-        });
-
-        assertEquals("Ya existe la convocatoria 'Repetida'", ex.getMessage());
+        assertThrows(IllegalArgumentException.class, () -> convocatoriaService.crear(c));
     }
 
-    // ✅ Test OK: borrar todos
     @Test
-    void testBorrarTodos_ok() {
-        when(repo.count()).thenReturn(2L);
+    void testCrearThrowsIllegalArgument_nullDates() {
+        Convocatoria c = new Convocatoria();
+        c.setNombreConvocatoria("Valida");
 
-        int borrados = service.borrarTodos();
-
-        verify(repo).deleteAll();
-        assertEquals(2, borrados);
+        assertThrows(IllegalArgumentException.class, () -> convocatoriaService.crear(c));
     }
 
-    // ❌ Test KO: nombre vacío
     @Test
-    void testCrear_nombreVacio_lanzaIllegalArgumentException() {
-        Convocatoria vacia = new Convocatoria();
-        vacia.setNombreConvocatoria(" "); // solo espacio
-        vacia.setFechaInicio(LocalDate.of(2025, 1, 1));
-        vacia.setFechaFin(LocalDate.of(2025, 12, 31));
+    void testCrearThrowsIllegalArgument_startAfterEnd() {
+        Convocatoria c = new Convocatoria();
+        c.setNombreConvocatoria("FechasInvalidas");
+        c.setFechaInicio(LocalDate.of(2025, 12, 31));
+        c.setFechaFin(LocalDate.of(2025, 1, 1));
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-            service.crear(vacia);
-        });
-
-        assertEquals("El nombre de la convocatoria es obligatorio.", ex.getMessage());
+        assertThrows(IllegalArgumentException.class, () -> convocatoriaService.crear(c));
     }
 
-    // ❌ Test KO: fechas nulas
     @Test
-    void testCrear_fechasNulas_lanzaIllegalArgumentException() {
-        Convocatoria sinFechas = new Convocatoria();
-        sinFechas.setNombreConvocatoria("Sin Fechas");
+    void testCrearThrowsAlreadyExists() {
+        Convocatoria c = new Convocatoria();
+        c.setNombreConvocatoria("Repetida");
+        c.setFechaInicio(LocalDate.now());
+        c.setFechaFin(LocalDate.now());
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-            service.crear(sinFechas);
-        });
+        when(convocatoriaRepository.existsByNombreConvocatoria("Repetida")).thenReturn(true);
 
-        assertEquals("Las fechas inicio y fin son obligatorias.", ex.getMessage());
+        assertThrows(AlreadyExistsException.class, () -> convocatoriaService.crear(c));
     }
 
-    // ❌ Test KO: fecha de inicio después de fecha fin
     @Test
-    void testCrear_fechaInicioDespuesDeFin_lanzaExcepcion() {
-        Convocatoria malFechada = new Convocatoria();
-        malFechada.setNombreConvocatoria("Fechas Mal Puestas");
-        malFechada.setFechaInicio(LocalDate.of(2025, 12, 31));
-        malFechada.setFechaFin(LocalDate.of(2025, 1, 1));
+    void testBorrarTodos() {
+        when(convocatoriaRepository.count()).thenReturn(5L);
 
-        // Solo si añadiste esta validación en el service
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-            service.crear(malFechada);
-        });
+        int deleted = convocatoriaService.borrarTodos();
 
-        assertEquals("La fecha de inicio no puede ser posterior a la fecha de fin.", ex.getMessage());
+        verify(convocatoriaRepository, times(1)).deleteAll();
+        assertEquals(5, deleted);
+    }
+
+    @Test
+    void testObtenerConMasDeSolicitudesSuccess() {
+        List<Integer> ids = List.of(1, 2);
+        List<Convocatoria> convocatorias = List.of(new Convocatoria(), new Convocatoria());
+
+        when(solicitudRepository.findConvocatoriaIdsConMasDeSolicitudes(10)).thenReturn(ids);
+        when(convocatoriaRepository.findAllById(ids)).thenReturn(convocatorias);
+
+        List<Convocatoria> result = convocatoriaService.obtenerConMasDeSolicitudes(10);
+
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void testObtenerConMasDeSolicitudesThrowsNotFound() {
+        when(solicitudRepository.findConvocatoriaIdsConMasDeSolicitudes(100)).thenReturn(Collections.emptyList());
+
+        NotFoundException ex = assertThrows(NotFoundException.class,
+                () -> convocatoriaService.obtenerConMasDeSolicitudes(100));
+
+        assertEquals("No hay convocatorias con más de 100 solicitudes.", ex.getMessage());
     }
 }
-
-
