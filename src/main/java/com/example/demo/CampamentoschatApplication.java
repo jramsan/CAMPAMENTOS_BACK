@@ -13,7 +13,8 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
         "service",
         "repository",
         "entity",
-        "exception"
+        "exception",
+        "DTO"
 })
 @EnableJpaRepositories(basePackages = { "repository" })
 @EntityScan(basePackages = { "entity" })
