@@ -20,4 +20,12 @@ public interface SolicitudRepository extends JpaRepository<Solicitud, Integer> {
     // ✅ NUEVO: devuelve los IDs de las convocatorias con más de X solicitudes
     @Query("SELECT s.convocatoria.id FROM Solicitud s GROUP BY s.convocatoria.id HAVING COUNT(s) > :min")
     List<Integer> findConvocatoriaIdsConMasDeSolicitudes(@Param("min") long min);
+
+	List<Solicitud> findAll();
+
+	void deleteAll();
+
+	long count();
+
+	Solicitud save(Solicitud any);
 }

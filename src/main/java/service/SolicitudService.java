@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SolicitudService {
@@ -43,7 +44,7 @@ public class SolicitudService {
     	
     	List<GetSolicitudesByDuracionDTO> listGetSolByDuracion = new ArrayList<>();
     	GetSolicitudesByDuracionDTO getSolByDuracion;
-    	List<Solicitud> solicitudes = solicitudRepo.findAll();
+    	List<Solicitud> solicitudes = Optional.of(solicitudRepo.findAll()).orElseThrow(()-> new RuntimeException("No existen Solicitudes"));
     	
     	for(Solicitud  s : solicitudes) {
     		getSolByDuracion = new GetSolicitudesByDuracionDTO();
@@ -52,14 +53,14 @@ public class SolicitudService {
     		getSolByDuracion.fechaSolicitud = s.getFechaSolicitud();
     		
     		Solicitante solicitante = new Solicitante(); 
-    		solicitante = solicitanteRepo.findById(s.getSolicitante().getId()).get();
+    		solicitante = Optional.of(solicitanteRepo.findById(s.getSolicitante().getId()).get()).orElseThrow(()->new RuntimeException("No existe solicitante"));
     		
     		getSolByDuracion.nombreUsuario = solicitante.getNombre()     + " " + 
     		                                 solicitante.getApellido1()  + " " +
     		                                 solicitante.getApellido2();
     		
     		Convocatoria convocatoria = new Convocatoria();
-    		convocatoria = convocatoriaRepo.findById(s.getConvocatoria().getId()).get();
+    		convocatoria = Optional.of(convocatoriaRepo.findById(s.getConvocatoria().getId()).get()).orElseThrow(()->new RuntimeException("No existe convocatoria")) ;
     		getSolByDuracion.duracionEnDias = (int) ChronoUnit.DAYS.between(convocatoria.getFechaInicio(), convocatoria.getFechaFin());
      		
     		listGetSolByDuracion.add(getSolByDuracion); 		
