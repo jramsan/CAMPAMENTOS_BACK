@@ -20,6 +20,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 @EntityScan(basePackages = { "entity" })
 public class CampamentoschatApplication {
     public static void main(String[] args) {
+        // arrancar la aplicación
         SpringApplication.run(CampamentoschatApplication.class, args);
     }
 }
