@@ -58,4 +58,13 @@ public class ConvocatoriaService {
         }
         return repo.findAllById(ids);
     }
+    // Obtener convocatorias futuras
+    public List<Convocatoria> listarFuturas() {
+        LocalDate hoy = LocalDate.now();
+        List<Convocatoria> futuras = repo.findByFechaInicioAfter(hoy);
+        if (futuras.isEmpty()) {
+            throw new NotFoundException("No hay convocatorias futuras.");
+        }
+        return futuras;
+    }
 }
