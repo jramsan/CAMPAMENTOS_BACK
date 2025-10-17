@@ -12,7 +12,10 @@ import org.springframework.stereotype.Repository;
 public interface ConvocatoriaRepository extends JpaRepository<Convocatoria, Integer> {
 
     boolean existsByNombreConvocatoria(String nombreConvocatoria);
-
+    List<Convocatoria> findByFechaInicioLessThanEqualAndFechaFinGreaterThanEqual(LocalDate hoy1, LocalDate hoy2);
+	  Optional<Convocatoria> findById(Integer id);
+  	List<Convocatoria> findAll();
+  	List<Convocatoria> findByFechaInicioAfter(LocalDate fecha);
     // Devuelve las convocatorias activas en un rango de fechas
     List<Convocatoria> findByFechaInicioLessThanEqualAndFechaFinGreaterThanEqual(
             LocalDate hoy1, LocalDate hoy2);
