@@ -6,11 +6,10 @@ import entity.Solicitud;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.util.List;
 
 public interface SolicitudRepository extends JpaRepository<Solicitud, Integer> {
 
@@ -21,11 +20,15 @@ public interface SolicitudRepository extends JpaRepository<Solicitud, Integer> {
     @Query("SELECT s.convocatoria.id FROM Solicitud s GROUP BY s.convocatoria.id HAVING COUNT(s) > :min")
     List<Integer> findConvocatoriaIdsConMasDeSolicitudes(@Param("min") long min);
 
-	List<Solicitud> findAll();
+    List<Solicitud> findAll();
 
-	void deleteAll();
+    void deleteAll();
 
-	long count();
+    long count();
 
-	Solicitud save(Solicitud any);
+    Solicitud save(Solicitud any);
+
+    // ✅ NUEVO MÉTODO: obtiene las 3 solicitudes cuyas convocatorias tienen mayor duración
+    @Query("SELECT s FROM Solicitud s ORDER BY (s.convocatoria.fechaFin - s.convocatoria.fechaInicio) DESC")
+    List<Solicitud> findTop3ByConvocatoriaDuration(Pageable pageable);
 }

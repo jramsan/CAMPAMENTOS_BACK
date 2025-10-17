@@ -52,17 +52,17 @@ public class SolicitudController {
                 .body(creada);
     }
 
-
     @GetMapping("/duracion")
     public List<GetSolicitudesByDuracionDTO> getSolcitudesByDuracion() {
-    	return service.getSolcitudesByDuracion();
-    	
-        
+        return service.getSolcitudesByDuracion();
     }
 
-
-
-
+    // ✅ NUEVO ENDPOINT: devuelve las 3 solicitudes cuyas convocatorias tienen mayor duración
+    @GetMapping("/top3duracion")
+    public ResponseEntity<List<Solicitud>> getTop3PorDuracionConvocatoria() {
+        List<Solicitud> result = service.getTop3SolicitudesPorDuracionConvocatoria();
+        return ResponseEntity.ok(result);
+    }
 
     @DeleteMapping
     public ResponseEntity<Map<String, Object>> borrarTodos() {
@@ -91,8 +91,5 @@ public class SolicitudController {
         if (s.isEmpty()) throw new IllegalArgumentException(field + " es obligatorio.");
         return s;
     }
-    
 
 }
-
-

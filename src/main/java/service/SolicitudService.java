@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.PageRequest; // ✅ añadido para la paginación
+
 @Service
 public class SolicitudService {
 
@@ -120,5 +122,10 @@ public class SolicitudService {
         int count = (int) solicitudRepo.count();
         solicitudRepo.deleteAll();
         return count;
+    }
+
+    // ✅ NUEVO MÉTODO: obtiene las 3 solicitudes cuyas convocatorias tienen mayor duración
+    public List<Solicitud> getTop3SolicitudesPorDuracionConvocatoria() {
+        return solicitudRepo.findTop3ByConvocatoriaDuration(PageRequest.of(0, 3));
     }
 }
