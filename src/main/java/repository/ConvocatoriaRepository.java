@@ -15,7 +15,6 @@ public interface ConvocatoriaRepository extends JpaRepository<Convocatoria, Inte
     List<Convocatoria> findByFechaInicioLessThanEqualAndFechaFinGreaterThanEqual(LocalDate hoy1, LocalDate hoy2);
 	Optional<Convocatoria> findById(Integer id);
 	List<Convocatoria> findAll();
-	//List<Convocatoria> findAllById(List<Integer> ids);
 	List<Convocatoria> findByFechaInicioAfter(LocalDate fecha);
 
 }
