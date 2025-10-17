@@ -57,4 +57,16 @@ public class ConvocatoriaController {
             ));
         }
     }
+ // obtener convocatorias futuras
+    @GetMapping("/futuras")
+    public ResponseEntity<?> getFuturas() {
+        try {
+            List<Convocatoria> futuras = service.listarFuturas();
+            return ResponseEntity.ok(futuras);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "message", e.getMessage()
+            ));
+        }
+    }
 }
