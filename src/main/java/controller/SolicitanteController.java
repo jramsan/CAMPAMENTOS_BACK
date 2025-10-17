@@ -2,6 +2,7 @@ package controller;
 
 import entity.Solicitante;
 import entity.Solicitud;
+import exception.NotFoundException;
 import service.SolicitanteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import service.SolicitanteService;
@@ -49,6 +50,19 @@ public class SolicitanteController {
                 "count", borrados
         ));
     }
+ // ✅ Nuevo endpoint: obtener solicitantes mayores de edad
+    @GetMapping("/mayores-de-edad")
+    public ResponseEntity<?> getMayoresDeEdad() {
+        try {
+            return ResponseEntity.ok(service.obtenerMayoresDeEdad());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "No existen solicitantes mayores de edad", e.getMessage()
+            ));
+        }
+    }
+
+    
     
 }
 

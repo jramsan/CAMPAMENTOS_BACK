@@ -1,5 +1,7 @@
 package entity;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -20,6 +22,18 @@ public class Solicitante {
 
     @Column(length = 100)
     private String apellido2;
+    
+    @Column(nullable = false)
+    private LocalDate fechaNacimiento;
+
+    public LocalDate getFechaNacimiento() {
+        return fechaNacimiento;
+    }
+
+    public void setFechaNacimiento(LocalDate fechaNacimiento) {
+        this.fechaNacimiento = fechaNacimiento;
+    }
+
 
     public Solicitante() {}
 

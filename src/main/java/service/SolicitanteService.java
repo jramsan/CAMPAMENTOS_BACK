@@ -7,6 +7,8 @@ import exception.NotFoundException;
 import repository.SolicitanteRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 @Service
@@ -53,4 +55,24 @@ public class SolicitanteService {
         }
         return list;
     }
+ // ✅ Nuevo método: obtener solicitantes mayores de edad
+    public List<Solicitante> obtenerMayoresDeEdad() {
+        List<Solicitante> todos = repo.findAll();
+        if (todos.isEmpty()) throw new NotFoundException("No existen solicitantes.");
+
+        LocalDate hoy = LocalDate.now();
+
+        List<Solicitante> mayores = todos.stream()
+                .filter(s -> s.getFechaNacimiento() != null)
+                .filter(s -> Period.between(s.getFechaNacimiento(), hoy).getYears() >= 18)
+                .toList();
+
+        if (mayores.isEmpty()) {
+            throw new NotFoundException("No hay solicitantes mayores de edad.");
+        }
+
+        return mayores;
+    }
+
+    
 }
